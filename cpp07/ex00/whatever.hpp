@@ -1,0 +1,36 @@
+#ifndef WHATEVER_HPP
+#define WHATEVER_HPP
+
+#include <iostream>
+
+class Whatever {
+	private:
+		Whatever();
+		~Whatever();
+		Whatever(const Whatever& other);
+		Whatever& operator=(const Whatever& other);
+};
+
+template <typename T> void swap(T& a, T& b) {
+	T temp = a;
+	a = b;
+	b = temp;
+}
+
+template <typename T> const T& min(const T& a, const T& b) {
+	if (a < b)
+		return a;
+	else
+		return b;
+}
+
+template <typename T> const T& max(const T& a, const T& b) {
+	if (a > b)
+		return a;
+	else
+		return b;
+}
+
+
+
+#endif

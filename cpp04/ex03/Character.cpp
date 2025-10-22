@@ -56,6 +56,7 @@ void Character::equip(AMateria* m) {
 		}
 	}
 	std::cout << "Inventory full, cannot equip more materia." << std::endl;
+	delete m;
 }
 
 void Character::unequip(int idx) {

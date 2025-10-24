@@ -8,9 +8,9 @@ AForm::AForm( void ) : m_name("Default"), m_isSigned(false), m_signGrade(150), m
 AForm::AForm( std::string name, int signGrade, int execGrade ) : m_name(name), m_isSigned(false), m_signGrade(signGrade), m_execGrade(execGrade)
 {
 	if (signGrade > 150 || execGrade > 150)
-		throw AForm::GradeTooHighException();
-	else if (signGrade < 1 || execGrade < 1)
 		throw AForm::GradeTooLowException();
+	else if (signGrade < 1 || execGrade < 1)
+		throw AForm::GradeTooHighException();
 	return ;
 }
 

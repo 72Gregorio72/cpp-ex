@@ -31,7 +31,6 @@ int main()
 		std::cerr << "Error creating PresidentialPardonForm: " << e.what() << std::endl;
 	}
 
-	// Clean up
 	if (shrubbery) delete shrubbery;
 	if (robotomy) delete robotomy;
 	if (pardon) delete pardon;

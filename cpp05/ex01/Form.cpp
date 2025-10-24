@@ -7,9 +7,9 @@ Form::Form( void ) : m_name("Default"), m_isSigned(false), m_signGrade(150), m_e
 
 Form::Form( std::string name, int signGrade, int execGrade ) : m_name(name), m_isSigned(false), m_signGrade(signGrade), m_execGrade(execGrade)
 {
-	if (signGrade > 150 || execGrade > 150)
+	if (signGrade < 1 || execGrade < 1)
 		throw Form::GradeTooHighException();
-	else if (signGrade < 1 || execGrade < 1)
+	else if (signGrade > 150 || execGrade > 150)
 		throw Form::GradeTooLowException();
 	return ;
 }

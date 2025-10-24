@@ -9,15 +9,13 @@ int main()
 {
 	srand(time(NULL));
 
-	Bureaucrat high("Alice", 1);      // Highest grade
-	Bureaucrat mid("Bob", 70);        // Middle grade
-	Bureaucrat low("Charlie", 150);   // Lowest grade
+	Bureaucrat high("Alice", 1);
+	Bureaucrat mid("Bob", 70);
+	Bureaucrat low("Charlie", 150);
 
 	ShrubberyCreationForm shrub("Garden");
 	RobotomyRequestForm robot("Bender");
 	PresidentialPardonForm pardon("Marvin");
-
-	// Print initial state
 	std::cout << high << std::endl;
 	std::cout << mid << std::endl;
 	std::cout << low << std::endl;
@@ -26,8 +24,6 @@ int main()
 	std::cout << robot << std::endl;
 	std::cout << pardon << std::endl;
 
-	// Try signing forms with different bureaucrats
-	std::cout << "\n--- Signing Forms ---\n";
 	try { shrub.beSigned(mid); std::cout << "Bob signed Shrubbery\n"; }
 	catch (std::exception &e) { std::cerr << "Bob failed to sign Shrubbery: " << e.what() << std::endl; }
 
@@ -37,16 +33,55 @@ int main()
 	try { pardon.beSigned(high); std::cout << "Alice signed Pardon\n"; }
 	catch (std::exception &e) { std::cerr << "Alice failed to sign Pardon: " << e.what() << std::endl; }
 
-	// Print forms after signing
 	std::cout << shrub << std::endl;
 	std::cout << robot << std::endl;
 	std::cout << pardon << std::endl;
 
-	// Try executing forms with different bureaucrats
-	std::cout << "\n--- Executing Forms ---\n";
 	high.executeForm(shrub);
 	mid.executeForm(robot);
 	low.executeForm(pardon);
+
+	try {
+		Bureaucrat tooLowShrub("TooLowShrub", 150);
+		shrub.beSigned(tooLowShrub);
+		std::cout << "TooLowShrub signed Shrubbery\n";
+	}
+	catch (std::exception &e) { std::cerr << "TooLowShrub failed to sign Shrubbery: " << e.what() << std::endl; }
+
+	try {
+		Bureaucrat tooHighShrub("TooHighShrub", 0);
+		shrub.beSigned(tooHighShrub);
+		std::cout << "TooHighShrub signed Shrubbery\n";
+	}
+	catch (std::exception &e) { std::cerr << "TooHighShrub failed to sign Shrubbery: " << e.what() << std::endl; }
+
+	try {
+		Bureaucrat tooLowRobot("TooLowRobot", 150);
+		robot.beSigned(tooLowRobot);
+		std::cout << "TooLowRobot signed Robotomy\n";
+	}
+	catch (std::exception &e) { std::cerr << "TooLowRobot failed to sign Robotomy: " << e.what() << std::endl; }
+
+	try {
+		Bureaucrat tooHighRobot("TooHighRobot", 0);
+		robot.beSigned(tooHighRobot);
+		std::cout << "TooHighRobot signed Robotomy\n";
+	}
+	catch (std::exception &e) { std::cerr << "TooHighRobot failed to sign Robotomy: " << e.what() << std::endl; }
+
+	try {
+		Bureaucrat tooLowPardon("TooLowPardon", 150);
+		pardon.beSigned(tooLowPardon);
+		std::cout << "TooLowPardon signed Pardon\n";
+	}
+	catch (std::exception &e) { std::cerr << "TooLowPardon failed to sign Pardon: " << e.what() << std::endl; }
+
+	try {
+		Bureaucrat tooHighPardon("TooHighPardon", 0);
+		pardon.beSigned(tooHighPardon);
+		std::cout << "TooHighPardon signed Pardon\n";
+	}
+	catch (std::exception &e) { std::cerr << "TooHighPardon failed to sign Pardon: " << e.what() << std::endl; }
 
 	return 0;
 }

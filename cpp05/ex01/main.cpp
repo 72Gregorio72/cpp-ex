@@ -6,7 +6,7 @@ int main(int ac, char **av)
 {
 	if (ac != 4)
 	{
-		std::cerr << "Usage: " << av[0] << " <Bureaucrat grade> <Form sign grade>" << std::endl;
+		std::cerr << "Usage: " << av[0] << " <Name> <Bureaucrat grade> <Form sign grade>" << std::endl;
 		return 1;
 	}
 	try
@@ -14,7 +14,7 @@ int main(int ac, char **av)
 		int bGrade = std::atoi(av[2]);
 		int fGrade = std::atoi(av[3]);
 		Bureaucrat b("Bureaucrat", bGrade);
-		Form f(av[1], bGrade, fGrade);
+		Form f(av[1], fGrade, fGrade);
 		std::cout << f << std::endl;
 		f.beSigned(b);
 		std::cout << f << std::endl;

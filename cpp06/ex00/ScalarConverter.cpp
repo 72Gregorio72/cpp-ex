@@ -11,6 +11,24 @@ bool	ScalarConverter::isInt(std::string literal)
 		return false;
 	if (isFloat(literal) || isDouble(literal) || isChar(literal))
 		return false;
+	if (literal[0] == '-' || literal[0] == '+')
+	{
+		if (literal.length() == 1)
+			return false;
+		for (size_t i = 1; i < literal.length(); i++)
+		{
+			if (!std::isdigit(literal[i]))
+				return false;
+		}
+	}
+	else
+	{
+		for (size_t i = 0; i < literal.length(); i++)
+		{
+			if (!std::isdigit(literal[i]))
+				return false;
+		}
+	}
 	return true;
 }
 
@@ -74,6 +92,40 @@ void	ScalarConverter::printDouble(double d)
 void	ScalarConverter::convert(std::string literal)
 {
 	errno = 0;
+
+	if (literal.length() > 1 && !isInt(literal) && !isFloat(literal) && !isDouble(literal))
+	{
+		std::cout << "char: impossible" << std::endl;
+		std::cout << "int: impossible" << std::endl;
+		std::cout << "float: impossible" << std::endl;
+		std::cout << "double: impossible" << std::endl;
+		return;
+	}
+	if (literal == "nan" || literal == "nanf")
+	{
+		std::cout << "char: impossible" << std::endl;
+		std::cout << "int: impossible" << std::endl;
+		printFloat(std::numeric_limits<float>::quiet_NaN());
+		printDouble(std::numeric_limits<double>::quiet_NaN());
+		return;
+	}
+	if (literal == "inf" || literal == "+inf" || literal == "inff" || literal == "+inff")
+	{
+		std::cout << "char: impossible" << std::endl;
+		std::cout << "int: impossible" << std::endl;
+		printFloat(std::numeric_limits<float>::infinity());
+		printDouble(std::numeric_limits<double>::infinity());
+		return;
+	}
+	if (literal == "-inf" || literal == "-inff")
+	{
+		std::cout << "char: impossible" << std::endl;
+		std::cout << "int: impossible" << std::endl;
+		printFloat(-std::numeric_limits<float>::infinity());
+		printDouble(-std::numeric_limits<double>::infinity());
+		return;
+	}
+
 	if (isInt(literal))
 	{
 		long l = std::strtol(literal.c_str(), NULL, 10);

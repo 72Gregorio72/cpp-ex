@@ -12,7 +12,7 @@ class Iter {
 		Iter& operator=(const Iter&);
 };
 
-template <typename T> void iter(T* array, std::size_t length, void (*func)(T&)) {
+template <typename T, typename Func> void iter(T* array, std::size_t length, Func func) {
 	for (std::size_t i = 0; i < length; ++i) {
 		func(array[i]);
 	}

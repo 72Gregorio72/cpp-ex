@@ -17,7 +17,9 @@ class BitcoinExchange {
 		BitcoinExchange& operator=(const BitcoinExchange& other);
 
 		void setBitCoinValues(std::string filename);
+		void setPriceValues(std::string filename);
 		std::map<std::string, double> getBitCoinValues();
+		std::map<std::string, double> getPriceValues();
 		
 		class BadDateException : public std::exception {
 			public:
@@ -38,6 +40,8 @@ class BitcoinExchange {
 		void fillBitCoinData(std::ifstream& bitCoinData);
 		bool checkDate(std::string date);
 		bool checkBitCoinsValue(std::string valueStr);
+		void fillPricesData(std::ifstream& pricesData);
+		bool checkPriceValue(std::string valueStr);
 };
 
 #endif

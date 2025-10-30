@@ -28,8 +28,23 @@ void BitcoinExchange::setBitCoinValues(std::string filename){
 	}
 }
 
+void BitcoinExchange::setPriceValues(std::string filename){
+	std::ifstream bitCoinData(filename.c_str());
+
+	if (bitCoinData.is_open()){
+		fillPricesData(bitCoinData);
+		bitCoinData.close();
+	} else {
+		std::cout << "File not found!" << std::endl;
+	}
+}
+
 std::map<std::string, double> BitcoinExchange::getBitCoinValues(){
 	return bitCoinValues;
+}
+
+std::map<std::string, double> BitcoinExchange::getPriceValues(){
+	return prices;
 }
 
 bool BitcoinExchange::checkDate(std::string date){
@@ -115,19 +130,10 @@ void BitcoinExchange::fillBitCoinData(std::ifstream &bitCoinData){
 	while (std::getline(bitCoinData, row)){
 		std::stringstream ss(row);
 		if (std::getline(ss, date, ',')) {
-			if (!checkDate(date)) {
-				std::cerr << "Errore: Data non valida nella riga: " << row << std::endl;
-				throw BadDateException();
-			}
 			if (std::getline(ss, valueStr)) {
 				size_t start = valueStr.find_first_not_of(" \t");
 				if (start != std::string::npos) {
 					valueStr = valueStr.substr(start);
-				}
-				
-				if (!checkBitCoinsValue(valueStr)) {
-					std::cerr << "Errore: Valore non valido nella riga: " << row << std::endl;
-					throw BadValueException();
 				}
 				std::stringstream valueSs(valueStr);
 				valueSs >> value;
@@ -135,8 +141,89 @@ void BitcoinExchange::fillBitCoinData(std::ifstream &bitCoinData){
 			} else {
 				std::cerr << "Errore: Riga dati incompleta (manca il valore): " << row << std::endl;
 			}
+		}
+	}
+}
+
+bool BitcoinExchange::checkPriceValue(std::string valueStr){
+	
+	if (valueStr.empty())
+		return false;
+	
+	size_t start = 0;
+	if (valueStr[0] == '-' || valueStr[0] == '+')
+		start = 1;
+	
+	if (start >= valueStr.length())
+		return false;
+	
+	bool hasDecimal = false;
+	bool hasDigit = false;
+	
+	for (size_t i = start; i < valueStr.length(); i++) {
+		if (valueStr[i] == '.') {
+			if (hasDecimal)
+				return false;
+			hasDecimal = true;
+		} else if (std::isdigit(valueStr[i])) {
+			hasDigit = true;
 		} else {
-			 std::cerr << "Errore: Riga dati incompleta (manca la data): " << row << std::endl;
+			return false;
+		}
+	}
+	
+	if (!hasDigit)
+		return false;
+	
+	double value;
+	std::stringstream ss(valueStr);
+	if (!(ss >> value) || !ss.eof())
+		return false;
+	
+	if (value < 0 || value > 1000)
+		return false;
+	return true;
+}
+
+void BitcoinExchange::fillPricesData(std::ifstream &bitCoinData){
+	std::string row;
+	std::string date;
+	std::string valueStr;
+	double value;
+
+	std::getline(bitCoinData, row); 
+
+	while (std::getline(bitCoinData, row)){
+		std::stringstream ss(row);
+		if (std::getline(ss, date, '|')) {
+			size_t end = date.find_last_not_of(" \t");
+			if (end != std::string::npos)
+				date = date.substr(0, end + 1);
+			else
+				date.clear();
+			if (!checkDate(date)) {
+				std::cerr << "Errore: not a valid date: " << date << std::endl;
+				continue;
+			}
+			if (std::getline(ss, valueStr)) {
+				size_t start = valueStr.find_first_not_of(" \t");
+				if (start != std::string::npos) {
+					valueStr = valueStr.substr(start);
+				}
+				if (!checkPriceValue(valueStr)) {
+					std::cerr << "Errore: not a valid number: " << valueStr << std::endl;
+					continue;
+				}
+				std::stringstream valueSs(valueStr);
+				valueSs >> value;
+				this->prices[date] = value;
+				std::cout << date << " => " << value 
+				<< " = " << value * this->bitCoinValues.upper_bound(date)->second << std::endl;
+			} else {
+				std::cerr << "Errore: bad input: " << row << std::endl;
+			}
+		} else {
+			std::cerr << "Errore: bad input: " << row << std::endl;
 		}
 	}
 }

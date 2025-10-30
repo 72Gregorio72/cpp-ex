@@ -15,11 +15,18 @@ int main(int ac, char **av)
 		return 1;
 	}
 
-	std::map<std::string, double> bitcoinValues = bitcoinExchange.getBitCoinValues();
-	for (std::map<std::string, double>::const_iterator it = bitcoinValues.begin(); 
-		it != bitcoinValues.end(); ++it) {
-		std::cout << it->first << " => " << it->second << std::endl;
+	try {
+		bitcoinExchange.setPriceValues(av[1]);
+	} catch (const std::exception& e) {
+		std::cerr << "Error: " << e.what() << std::endl;
+		return 1;
 	}
+
+	// std::map<std::string, double> priceValues = bitcoinExchange.getPriceValues();
+	// for (std::map<std::string, double>::const_iterator it = priceValues.begin(); it != priceValues.end(); ++it) {
+	// 	std::cout << it->first << " => " << it->second;
+	// 	std::cout << " = " << it->second * bitcoinExchange.getBitCoinValues().upper_bound(it->first)->second << std::endl;
+	// }
 
 	return 0;
 }

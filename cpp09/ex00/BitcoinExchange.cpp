@@ -76,6 +76,9 @@ bool BitcoinExchange::checkDate(std::string date){
 	
 	if (day < 1 || day > daysInMonth[month - 1])
 		return false;
+	
+	if (year > 9999 || year < 2009)
+		return false;
 	return true;
 }
 

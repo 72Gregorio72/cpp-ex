@@ -4,6 +4,8 @@
 #include <cctype>
 #include <climits>
 #include <string>
+#include <sys/time.h>
+#include <stdexcept>
 
 PmergeMe::PmergeMe() : v(), d() {}
 
@@ -105,14 +107,44 @@ std::vector<size_t> jacobsthalSequence(size_t n) {
 }
 
 void PmergeMe::sortContainers(){
-	fordJhonsonVector(v);
+    struct timeval start_v, end_v;
+    struct timeval start_d, end_d;
+
+    gettimeofday(&start_v, NULL); 
+    
+    std::vector<std::pair<int, int> > pairs_v;
+    fordJhonsonVector(v, pairs_v);
+    
+    gettimeofday(&end_v, NULL); 
+    gettimeofday(&start_d, NULL);
+    
+    std::deque<std::pair<int, int> > pairs_d;
+    fordJhonsonDeque(d, pairs_d);
+    
+    gettimeofday(&end_d, NULL);
+    long duration_v = (end_v.tv_sec - start_v.tv_sec) * 1000000L + (end_v.tv_usec - start_v.tv_usec);
+    long duration_d = (end_d.tv_sec - start_d.tv_sec) * 1000000L + (end_d.tv_usec - start_d.tv_usec);
+
+	std::cout << "After:   ";
+	printVector();
+    std::cout << "Time to process a range of " << v.size() << " elements with std::vector : " 
+              << duration_v << " us" << std::endl;
+    std::cout << "Time to process a range of " << d.size() << " elements with std::deque : " 
+              << duration_d << " us" << std::endl;
 }
 
-void PmergeMe::fordJhonsonVector(std::vector<int> &container){
+void PmergeMe::fordJhonsonVector(std::vector<int> &container, std::vector<std::pair<int, int> > pairs){
+	
+	std::vector<std::pair<int, int> > empty;
+	
 	if (container.size() <= 1)
 		return ;
-	
-	std::vector<std::pair<int, int> > pairs;
+
+	if (!pairs.empty())
+		empty = pairs;
+
+	pairs.clear();
+
 	for(size_t i = 0; i + 1 < container.size(); i += 2){
 		int a = container[i], b = container[i + 1];
 		if (a > b)
@@ -132,7 +164,23 @@ void PmergeMe::fordJhonsonVector(std::vector<int> &container){
 		pendingChain.push_back(pairs[i].second);
 	}
 
-	fordJhonsonVector(mainChain);
+	fordJhonsonVector(mainChain, pairs);
+	std::vector<int> newPending;
+	newPending.reserve(mainChain.size());
+	std::vector<int> firstValues;
+	firstValues.reserve(mainChain.size());
+
+	for (size_t i = 0; i < mainChain.size(); ++i) {
+		for (size_t j = 0; j < pairs.size(); ++j) {
+			if (mainChain[i] == pairs[j].first) {
+				newPending.push_back(pairs[j].second);
+				firstValues.push_back(pairs[j].first);
+				break;
+			}
+		}
+	}
+
+	pendingChain = newPending;
 
 	std::vector<size_t> js = jacobsthalSequence(pendingChain.size());
 
@@ -140,20 +188,90 @@ void PmergeMe::fordJhonsonVector(std::vector<int> &container){
 		size_t id = js[i] - 1;
 		if (id >= pendingChain.size())
 			continue;
-		std::vector<int>::iterator pos = std::lower_bound(mainChain.begin(), mainChain.end(), pendingChain[id]);
+		std::vector<int>::iterator itStart = std::find(mainChain.begin(), mainChain.end(), firstValues[id]);
+		if (itStart == mainChain.end())
+			itStart = mainChain.begin();
+		std::vector<int>::iterator pos = std::lower_bound(itStart, mainChain.end(), pendingChain[id]);
 		mainChain.insert(pos, pendingChain[id]);
 	}
 
 	if (hasOdd) {
-        std::vector<int>::iterator pos = std::lower_bound(mainChain.begin(), mainChain.end(), leftover);
-        mainChain.insert(pos, leftover);
-    }
+		std::vector<int>::iterator pos = std::lower_bound(mainChain.begin(), mainChain.end(), leftover);
+		mainChain.insert(pos, leftover);
+	}
 
-    container = mainChain;
+	container = mainChain;
+}
+
+void PmergeMe::fordJhonsonDeque(std::deque<int> &container, std::deque<std::pair<int, int> > pairs){
+	
+	std::deque<std::pair<int, int> > empty;
+	
+	if (container.size() <= 1)
+		return ;
+
+	if (!pairs.empty())
+		empty = pairs;
+
+	pairs.clear();
+
+	for(size_t i = 0; i + 1 < container.size(); i += 2){
+		int a = container[i], b = container[i + 1];
+		if (a > b)
+			std::swap(a, b);
+		pairs.push_back(std::make_pair(a, b));
+	}
+
+	bool hasOdd = (container.size() % 2);
+	int leftover = 0;
+	if (hasOdd) leftover = container.back();
+
+	std::deque<int> mainChain;
+	std::deque<int> pendingChain;
+
+	for(size_t i = 0; i < pairs.size(); i++){
+		mainChain.push_back(pairs[i].first);
+		pendingChain.push_back(pairs[i].second);
+	}
+
+	fordJhonsonDeque(mainChain, pairs);
+	std::deque<int> newPending;
+	std::deque<int> firstValues;
+
+	for (size_t i = 0; i < mainChain.size(); ++i) {
+		for (size_t j = 0; j < pairs.size(); ++j) {
+			if (mainChain[i] == pairs[j].first) {
+				newPending.push_back(pairs[j].second);
+				firstValues.push_back(pairs[j].first);
+				break;
+			}
+		}
+	}
+
+	pendingChain = newPending;
+
+	std::vector<size_t> js = jacobsthalSequence(pendingChain.size());
+
+	for (size_t i = 0; i < js.size(); i++){
+		size_t id = js[i] - 1;
+		if (id >= pendingChain.size())
+			continue;
+		std::deque<int>::iterator itStart = std::find(mainChain.begin(), mainChain.end(), firstValues[id]);
+		if (itStart == mainChain.end())
+			itStart = mainChain.begin();
+		std::deque<int>::iterator pos = std::lower_bound(itStart, mainChain.end(), pendingChain[id]);
+		mainChain.insert(pos, pendingChain[id]);
+	}
+
+	if (hasOdd) {
+		std::deque<int>::iterator pos = std::lower_bound(mainChain.begin(), mainChain.end(), leftover);
+		mainChain.insert(pos, leftover);
+	}
+
+	container = mainChain;
 }
 
 void PmergeMe::printVector(){
-	std::cout << "Vector: ";
 	for (size_t i = 0; i < v.size(); i++){
 		std::cout << v[i] << " ";
 	}
@@ -161,7 +279,6 @@ void PmergeMe::printVector(){
 }
 
 void PmergeMe::printDeque(){
-	std::cout << "Deque: ";
 	for (size_t i = 0; i < d.size(); i++){
 		std::cout << d[i] << " ";
 	}

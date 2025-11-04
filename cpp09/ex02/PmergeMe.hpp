@@ -24,7 +24,8 @@ class PmergeMe{
 		void printDeque();
 		void sortVector();
 		void sortDeque();
-		void fordJhonsonVector(std::vector<int> &container);
+		void fordJhonsonVector(std::vector<int> &container, std::vector<std::pair<int, int> > pairs);
+		void fordJhonsonDeque(std::deque<int> &container, std::deque<std::pair<int, int> > pairs);
 		void sortContainers();
 
 	private:

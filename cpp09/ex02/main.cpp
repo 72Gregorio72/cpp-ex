@@ -15,13 +15,9 @@ int main(int ac, char **av){
 	PmergeMe p;
 	std::string input = fillString(ac, av);
 
-	std::cout << input << std::endl;
 	if (!p.fillContainer(input)) {
 		return 1;
 	}
-
+	std::cout << "Before:  " << input << std::endl;
 	p.sortContainers();
-
-	p.printDeque();
-	p.printVector();
 }
